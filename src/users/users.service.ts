@@ -58,6 +58,15 @@ export class UsersService {
         return user;
     }
 
+    // Necesario para la autenticacion
+    async findByEmail(email: string) {
+        const user = await this.userModel.findOne({ email }).exec();
+        if (!user) {
+            throw new NotFoundException(`User with email ${email} not found`);
+        }
+        return user;
+    }
+
     async updateUser(id: number, data: CreateUserDto){
         const saltRounds = 10;
         const passwordHash = await bcrypt.hash(data.password, saltRounds);

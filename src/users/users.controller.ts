@@ -99,5 +99,12 @@ export class UsersController {
         return this.usersService.getUsers();
     }
 
+    @ApiOperation({ summary: 'Find a user by email' })
+    @ApiParam({ name: 'email', type: String })
+    @Get('email/:email')
+    async findUserByEmail(@Param('email') email: string) {
+        return this.usersService.findByEmail(email);
+    }
+
 
 }

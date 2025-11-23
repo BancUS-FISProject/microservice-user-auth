@@ -10,9 +10,9 @@ Requisitos
 
 Dependencias principales
 ------------------------
-- NestJS (`@nestjs/common`, `@nestjs/core`, `@nestjs/platform-express`, `@nestjs/config`)
+- NestJS (`@nestjs/common`, `@nestjs/core`, `@nestjs/platform-express`, `@nestjs/config`, `@nestjs/jwt`)
   ```bash
-  npm install @nestjs/common @nestjs/core @nestjs/platform-express @nestjs/config
+  npm install @nestjs/common @nestjs/core @nestjs/platform-express @nestjs/config @nestjs/jwt
   ```
 - Mongoose (`mongoose`, `@nestjs/mongoose`)
   ```bash
