@@ -1,8 +1,8 @@
-import { Module} from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { UsersModule } from './users/users.module';
-import { MongooseModule } from '@nestjs/mongoose'; 
+import { MongooseModule } from '@nestjs/mongoose';
 import { AuthModule } from './auth/auth.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 
@@ -15,13 +15,14 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
     MongooseModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
-      useFactory: async (configService: ConfigService) => {
-        
-        const uri =
-          configService.get<string>('MONGO_URI') ??
-          'mongodb://mongo:27017/userauth_db'; 
+      useFactory: (configService: ConfigService) => {
+        const mongoUri = configService.get<string>('MONGO_URI');
+        const mongoHost = configService.get<string>('MONGO_HOST') ?? 'mongo';
+        const mongoPort = configService.get<string>('MONGO_PORT') ?? '27017';
+        const mongoDb = configService.get<string>('MONGO_DB') ?? 'userauth_db';
 
-        // console.log('[MongoDB] Conectando a:', uri);
+        const uri =
+          mongoUri ?? `mongodb://${mongoHost}:${mongoPort}/${mongoDb}`;
 
         return {
           uri,
@@ -31,7 +32,8 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
     }),
 
     UsersModule,
-    AuthModule],
+    AuthModule,
+  ],
   controllers: [AppController],
   providers: [AppService],
 })

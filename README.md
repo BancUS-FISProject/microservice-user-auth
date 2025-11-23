@@ -1,64 +1,46 @@
-microservice-userAuth
-=====================
+User/Auth Microservice
+======================
 
-Microservicio de autenticación/gestión de usuarios construido con NestJS y MongoDB (Mongoose). Expone operaciones CRUD básicas, documentación Swagger y hashing de contraseñas con bcrypt.
+API de usuarios y autenticación con NestJS + MongoDB. Se ejecuta vía Docker Compose (API + Mongo).
 
 Requisitos
 ----------
-- Node.js 18+ y npm
-- MongoDB accesible (local o remoto)
+- Docker y Docker Compose
 
-Dependencias principales
-------------------------
-- NestJS (`@nestjs/common`, `@nestjs/core`, `@nestjs/platform-express`, `@nestjs/config`, `@nestjs/jwt`)
-  ```bash
-  npm install @nestjs/common @nestjs/core @nestjs/platform-express @nestjs/config @nestjs/jwt
-  ```
-- Mongoose (`mongoose`, `@nestjs/mongoose`)
-  ```bash
-  npm install mongoose @nestjs/mongoose
-  ```
-- Swagger (`@nestjs/swagger`, `swagger-ui-express`)
-  ```bash
-  npm install @nestjs/swagger swagger-ui-express
-  ```
-- Validación (`class-validator`, `class-transformer`)
-  ```bash
-  npm install class-validator class-transformer
-  ```
-- Hashing (`bcrypt`)
-  ```bash
-  npm install bcrypt
-  ```
+Configuración (.env)
+--------------------
+Crea un `.env` (puedes copiar `.env.example`). Variables disponibles:
+- `PORT`: puerto de la API dentro del contenedor (y mapeo al host). Por defecto `3000`.
+- `MONGO_EXPOSED_PORT`: puerto en el host para exponer MongoDB. Por defecto `27018`.
+- `MONGO_HOST`: host interno al que conectará la API. Por defecto `mongo` (nombre del servicio).
+- `MONGO_PORT`: puerto interno de MongoDB dentro de la red de Docker. Por defecto `27017`.
+- `MONGO_DB`: nombre de la base de datos. Por defecto `userauth_db`.
+- `MONGO_URI`: URI completa; si se define tiene prioridad sobre las variables anteriores.
+- `JWT_SECRET`: secreto para firmar tokens.
 
-Instalación
------------
-```bash
-npm install
+Arranque con Docker Compose
+---------------------------
+1) Configura el `.env`.  
+2) Levanta los servicios:
+   ```
+   docker compose up --build
+   ```
+3) Endpoints:
+   - API: http://localhost:3000 (o el puerto que hayas puesto en `PORT`)
+   - Swagger UI: http://localhost:3000/api
+   - MongoDB expuesto en el host en `localhost:27018` (o el valor de `MONGO_EXPOSED_PORT`)
+
+Comandos útiles (dentro del contenedor)
+---------------------------------------
+Si necesitas ejecutar scripts de npm:
+```
+docker compose exec api npm run lint
+docker compose exec api npm test
+docker compose exec api npm run build
 ```
 
-Ejecución
----------
-```bash
-# desarrollo con recarga
-npm run start:dev
-
-# producción (requiere build previo)
-npm run build
-npm run start:prod
-```
-
-Configuración
--------------
-- Configura la cadena de conexión a MongoDB en en tu archivo de variables de entorno .env (define y da valor a MONGO_URI y PORT).
-- Swagger: disponible en `/api` tras arrancar la app.
-
-Endpoints
----------
-- `POST /users` — crear usuario (hash de contraseña, ids autoincrementales).
-- `GET /users` — listar todos los usuarios.
-- `GET /users/:id` — obtener usuario por id.
-- `PUT /users/:id` — reemplazar datos del usuario.
-- `PATCH /users/:id` — actualizar un campo (`name | passwordHash | phoneNumber | email`).
-- `DELETE /users/:id` — eliminar un usuario (204).
-- `DELETE /users` — eliminar todos los usuarios (204).
+Notas
+-----
+- Si defines `MONGO_URI`, la app la usará directamente; en caso contrario, construye la URI con `MONGO_HOST` + `MONGO_PORT` + `MONGO_DB`.
+- El servicio `api` espera que `mongo` esté disponible en la red interna de Docker (resolviendo por nombre de servicio).
+- Swagger está montado en `/api` y requiere `Bearer` cuando se active el flujo JWT.

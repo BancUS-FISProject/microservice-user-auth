@@ -2,17 +2,18 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { ConfigService } from '@nestjs/config';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  const configService = app.get(ConfigService);
 
   app.useGlobalPipes(
-
     // Validacion DTO
     new ValidationPipe({
-      whitelist: true,           
-      forbidNonWhitelisted: true, 
-      transform: true,           
+      whitelist: true,
+      forbidNonWhitelisted: true,
+      transform: true,
     }),
   );
 
@@ -27,8 +28,7 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document); // <-- /api será la URL de Swagger
 
-
-
-  await app.listen(process.env.PORT ?? 3000);
+  const port = parseInt(configService.get<string>('PORT') ?? '3000', 10);
+  await app.listen(port);
 }
-bootstrap();
+void bootstrap();

@@ -30,15 +30,23 @@ describe('UsersService', () => {
     findOneAndDeleteExecMock = jest.fn();
     deleteManyExecMock = jest.fn();
 
-    mockUserModel = jest.fn().mockImplementation((doc) => ({ save: saveMock, ...doc }));
+    mockUserModel = jest
+      .fn()
+      .mockImplementation((doc) => ({ save: saveMock, ...doc }));
     mockUserModel.findOne = jest.fn().mockImplementation(() => ({
       lean: findOneLeanMock,
       exec: findOneExecMock,
     }));
     mockUserModel.find = jest.fn().mockReturnValue({ exec: findExecMock });
-    mockUserModel.findOneAndUpdate = jest.fn().mockReturnValue({ exec: findOneAndUpdateExecMock });
-    mockUserModel.findOneAndDelete = jest.fn().mockReturnValue({ exec: findOneAndDeleteExecMock });
-    mockUserModel.deleteMany = jest.fn().mockReturnValue({ exec: deleteManyExecMock });
+    mockUserModel.findOneAndUpdate = jest
+      .fn()
+      .mockReturnValue({ exec: findOneAndUpdateExecMock });
+    mockUserModel.findOneAndDelete = jest
+      .fn()
+      .mockReturnValue({ exec: findOneAndDeleteExecMock });
+    mockUserModel.deleteMany = jest
+      .fn()
+      .mockReturnValue({ exec: deleteManyExecMock });
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -89,7 +97,10 @@ describe('UsersService', () => {
 
     it('should throw BadRequestException on duplicate key errors', async () => {
       hashMock.mockResolvedValueOnce('hashed');
-      saveMock.mockRejectedValueOnce({ code: 11000, keyValue: { email: dto.email } });
+      saveMock.mockRejectedValueOnce({
+        code: 11000,
+        keyValue: { email: dto.email },
+      });
 
       const promise = service.signInUser(dto);
       await expect(promise).rejects.toThrow(BadRequestException);
@@ -133,7 +144,12 @@ describe('UsersService', () => {
   });
 
   describe('updateUser', () => {
-    const dto = { email: 'test@example.com', name: 'Test', password: 'pass', phoneNumber: '+34611222333' };
+    const dto = {
+      email: 'test@example.com',
+      name: 'Test',
+      password: 'pass',
+      phoneNumber: '+34611222333',
+    };
 
     it('should update and return user', async () => {
       hashMock.mockResolvedValueOnce('hashed');
@@ -160,13 +176,20 @@ describe('UsersService', () => {
       hashMock.mockResolvedValueOnce('hashed');
       findOneAndUpdateExecMock.mockResolvedValueOnce(null);
 
-      await expect(service.updateUser(1, dto)).rejects.toThrow(BadRequestException);
-      await expect(service.updateUser(1, dto)).rejects.toThrow('Invalid update payload');
+      await expect(service.updateUser(1, dto)).rejects.toThrow(
+        BadRequestException,
+      );
+      await expect(service.updateUser(1, dto)).rejects.toThrow(
+        'Invalid update payload',
+      );
     });
 
     it('should throw BadRequestException on duplicate key', async () => {
       hashMock.mockResolvedValueOnce('hashed');
-      findOneAndUpdateExecMock.mockRejectedValueOnce({ code: 11000, keyValue: { email: dto.email } });
+      findOneAndUpdateExecMock.mockRejectedValueOnce({
+        code: 11000,
+        keyValue: { email: dto.email },
+      });
 
       const promise = service.updateUser(1, dto);
       await expect(promise).rejects.toThrow(BadRequestException);
@@ -177,17 +200,27 @@ describe('UsersService', () => {
       hashMock.mockResolvedValueOnce('hashed');
       findOneAndUpdateExecMock.mockRejectedValueOnce(new Error('invalid'));
 
-      await expect(service.updateUser(1, dto)).rejects.toThrow(BadRequestException);
-      await expect(service.updateUser(1, dto)).rejects.toThrow('Invalid update payload');
+      await expect(service.updateUser(1, dto)).rejects.toThrow(
+        BadRequestException,
+      );
+      await expect(service.updateUser(1, dto)).rejects.toThrow(
+        'Invalid update payload',
+      );
     });
   });
 
   describe('patchUser', () => {
     it('should patch password hashing when field is passwordHash', async () => {
       hashMock.mockResolvedValueOnce('hashed');
-      findOneAndUpdateExecMock.mockResolvedValueOnce({ id: 1, passwordHash: 'hashed' });
+      findOneAndUpdateExecMock.mockResolvedValueOnce({
+        id: 1,
+        passwordHash: 'hashed',
+      });
 
-      const result = await service.patchUser(1, { field: 'passwordHash', value: 'new' });
+      const result = await service.patchUser(1, {
+        field: 'passwordHash',
+        value: 'new',
+      });
 
       expect(hashMock).toHaveBeenCalledWith('new', 10);
       expect(mockUserModel.findOneAndUpdate).toHaveBeenCalledWith(
@@ -201,7 +234,10 @@ describe('UsersService', () => {
     it('should patch a non-password field without hashing', async () => {
       findOneAndUpdateExecMock.mockResolvedValueOnce({ id: 1, name: 'New' });
 
-      const result = await service.patchUser(1, { field: 'name', value: 'New' });
+      const result = await service.patchUser(1, {
+        field: 'name',
+        value: 'New',
+      });
 
       expect(hashMock).not.toHaveBeenCalled();
       expect(mockUserModel.findOneAndUpdate).toHaveBeenCalledWith(
@@ -215,12 +251,19 @@ describe('UsersService', () => {
     it('should throw BadRequestException when user does not exist', async () => {
       findOneAndUpdateExecMock.mockResolvedValueOnce(null);
 
-      await expect(service.patchUser(1, { field: 'name', value: 'New' })).rejects.toThrow(BadRequestException);
-      await expect(service.patchUser(1, { field: 'name', value: 'New' })).rejects.toThrow('Invalid patch payload');
+      await expect(
+        service.patchUser(1, { field: 'name', value: 'New' }),
+      ).rejects.toThrow(BadRequestException);
+      await expect(
+        service.patchUser(1, { field: 'name', value: 'New' }),
+      ).rejects.toThrow('Invalid patch payload');
     });
 
     it('should throw BadRequestException on duplicate key', async () => {
-      findOneAndUpdateExecMock.mockRejectedValueOnce({ code: 11000, keyValue: { email: 'x' } });
+      findOneAndUpdateExecMock.mockRejectedValueOnce({
+        code: 11000,
+        keyValue: { email: 'x' },
+      });
 
       const promise = service.patchUser(1, { field: 'email', value: 'x' });
       await expect(promise).rejects.toThrow(BadRequestException);
@@ -230,8 +273,12 @@ describe('UsersService', () => {
     it('should throw BadRequestException on invalid payload', async () => {
       findOneAndUpdateExecMock.mockRejectedValueOnce(new Error('invalid'));
 
-      await expect(service.patchUser(1, { field: 'email', value: 'x' })).rejects.toThrow(BadRequestException);
-      await expect(service.patchUser(1, { field: 'email', value: 'x' })).rejects.toThrow('Invalid patch payload');
+      await expect(
+        service.patchUser(1, { field: 'email', value: 'x' }),
+      ).rejects.toThrow(BadRequestException);
+      await expect(
+        service.patchUser(1, { field: 'email', value: 'x' }),
+      ).rejects.toThrow('Invalid patch payload');
     });
   });
 
@@ -254,7 +301,10 @@ describe('UsersService', () => {
 
   describe('deleteAllUsers', () => {
     it('should delete all users', async () => {
-      deleteManyExecMock.mockResolvedValueOnce({ acknowledged: true, deletedCount: 3 });
+      deleteManyExecMock.mockResolvedValueOnce({
+        acknowledged: true,
+        deletedCount: 3,
+      });
 
       const result = await service.deleteAllUsers();
 

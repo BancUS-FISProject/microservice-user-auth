@@ -13,8 +13,8 @@ export class User {
   @Prop({ required: true })
   name: string;
 
-  @Prop({ required: true})
-  passwordHash: string;   
+  @Prop({ required: true })
+  passwordHash: string;
 
   @Prop({ required: true, unique: true })
   phoneNumber: string;
