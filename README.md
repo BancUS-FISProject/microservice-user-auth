@@ -10,9 +10,9 @@ Requisitos
 
 Dependencias principales
 ------------------------
-- NestJS (`@nestjs/common`, `@nestjs/core`, `@nestjs/platform-express`)
+- NestJS (`@nestjs/common`, `@nestjs/core`, `@nestjs/platform-express`, `@nestjs/config`)
   ```bash
-  npm install @nestjs/common @nestjs/core @nestjs/platform-express
+  npm install @nestjs/common @nestjs/core @nestjs/platform-express @nestjs/config
   ```
 - Mongoose (`mongoose`, `@nestjs/mongoose`)
   ```bash
@@ -50,7 +50,7 @@ npm run start:prod
 
 Configuración
 -------------
-- Configura la cadena de conexión a MongoDB en `src/main.ts` o donde tengas el módulo de Mongoose.
+- Configura la cadena de conexión a MongoDB en en tu archivo de variables de entorno .env (define y da valor a MONGO_URI y PORT).
 - Swagger: disponible en `/api` tras arrancar la app.
 
 Endpoints
