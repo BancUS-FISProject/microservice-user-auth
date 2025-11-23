@@ -8,23 +8,30 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 
 @Module({
   imports: [
-    // Cargamos las variables de entorno globalmente
     ConfigModule.forRoot({
       isGlobal: true,
     }),
 
-    // Establecemos una conexion con la bd, asegurandonos de que se cargan las variables de entorno antes del establecimiento.
     MongooseModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
-      useFactory: async (configService: ConfigService) => ({
-        uri: configService.get<string>('MONGO_URI'),
-        autoIndex: true, 
-      }),
+      useFactory: async (configService: ConfigService) => {
+        
+        const uri =
+          configService.get<string>('MONGO_URI') ??
+          'mongodb://mongo:27017/userauth_db'; 
+
+        // console.log('[MongoDB] Conectando a:', uri);
+
+        return {
+          uri,
+          autoIndex: true,
+        };
+      },
     }),
+
     UsersModule,
-    AuthModule,
-  ],
+    AuthModule],
   controllers: [AppController],
   providers: [AppService],
 })
