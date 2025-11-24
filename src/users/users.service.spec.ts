@@ -172,15 +172,12 @@ describe('UsersService', () => {
       expect(result).toEqual(updated);
     });
 
-    it('should throw BadRequestException when user does not exist', async () => {
+    it('should throw NotFoundException when user does not exist', async () => {
       hashMock.mockResolvedValueOnce('hashed');
       findOneAndUpdateExecMock.mockResolvedValueOnce(null);
 
       await expect(service.updateUser(1, dto)).rejects.toThrow(
-        BadRequestException,
-      );
-      await expect(service.updateUser(1, dto)).rejects.toThrow(
-        'Invalid update payload',
+        NotFoundException,
       );
     });
 
@@ -200,12 +197,9 @@ describe('UsersService', () => {
       hashMock.mockResolvedValueOnce('hashed');
       findOneAndUpdateExecMock.mockRejectedValueOnce(new Error('invalid'));
 
-      await expect(service.updateUser(1, dto)).rejects.toThrow(
-        BadRequestException,
-      );
-      await expect(service.updateUser(1, dto)).rejects.toThrow(
-        'Invalid update payload',
-      );
+      const promise = service.updateUser(1, dto);
+      await expect(promise).rejects.toThrow(BadRequestException);
+      await expect(promise).rejects.toThrow('Invalid update payload');
     });
   });
 
@@ -248,15 +242,12 @@ describe('UsersService', () => {
       expect(result).toEqual({ id: 1, name: 'New' });
     });
 
-    it('should throw BadRequestException when user does not exist', async () => {
+    it('should throw NotFoundException when user does not exist', async () => {
       findOneAndUpdateExecMock.mockResolvedValueOnce(null);
 
       await expect(
         service.patchUser(1, { field: 'name', value: 'New' }),
-      ).rejects.toThrow(BadRequestException);
-      await expect(
-        service.patchUser(1, { field: 'name', value: 'New' }),
-      ).rejects.toThrow('Invalid patch payload');
+      ).rejects.toThrow(NotFoundException);
     });
 
     it('should throw BadRequestException on duplicate key', async () => {
@@ -273,12 +264,9 @@ describe('UsersService', () => {
     it('should throw BadRequestException on invalid payload', async () => {
       findOneAndUpdateExecMock.mockRejectedValueOnce(new Error('invalid'));
 
-      await expect(
-        service.patchUser(1, { field: 'email', value: 'x' }),
-      ).rejects.toThrow(BadRequestException);
-      await expect(
-        service.patchUser(1, { field: 'email', value: 'x' }),
-      ).rejects.toThrow('Invalid patch payload');
+      const promise = service.patchUser(1, { field: 'email', value: 'x' });
+      await expect(promise).rejects.toThrow(BadRequestException);
+      await expect(promise).rejects.toThrow('Invalid patch payload');
     });
   });
 
