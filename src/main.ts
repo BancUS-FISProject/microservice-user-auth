@@ -28,11 +28,12 @@ async function bootstrap() {
     .setTitle('Users & Auth API')
     .setDescription('API para el microservicio de usuarios y autenticación')
     .setVersion('1.0')
-    .addServer(`/v${apiVersion}`)
     .addBearerAuth() // Para JWT más adelante
     .build();
 
-  const document = SwaggerModule.createDocument(app, config);
+  const document = SwaggerModule.createDocument(app, config, {
+    deepScanRoutes: true, // Incluye el prefijo de versión en los paths de Swagger
+  });
   SwaggerModule.setup('api', app, document); // <-- /api será la URL de Swagger
 
   const port = parseInt(configService.get<string>('PORT') ?? '3000', 10);
