@@ -23,13 +23,13 @@ export class UserPatchDto {
       'Nuevo valor para el campo indicado. Se validan formato y longitud según el campo.',
   })
   @IsString()
-  @ValidateIf((o) => o.field === 'email')
+  @ValidateIf((o: UserPatchDto) => o.field === 'email')
   @IsEmail()
-  @ValidateIf((o) => o.field === 'phoneNumber')
+  @ValidateIf((o: UserPatchDto) => o.field === 'phoneNumber')
   @IsPhoneNumber()
-  @ValidateIf((o) => o.field === 'passwordHash')
+  @ValidateIf((o: UserPatchDto) => o.field === 'passwordHash')
   @MinLength(6)
-  @ValidateIf((o) => o.field === 'name')
+  @ValidateIf((o: UserPatchDto) => o.field === 'name')
   @MinLength(3)
   value: string;
 }
