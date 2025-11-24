@@ -95,6 +95,9 @@ export class UsersService {
       }
       return updated;
     } catch (error: unknown) {
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
       const duplicateKey = this.extractDuplicateKey(error);
       if (duplicateKey) {
         throw new BadRequestException(`Duplicate value for ${duplicateKey}`);
@@ -129,6 +132,9 @@ export class UsersService {
       }
       return patched;
     } catch (error: unknown) {
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
       const duplicateKey = this.extractDuplicateKey(error);
       if (duplicateKey) {
         throw new BadRequestException(`Duplicate value for ${duplicateKey}`);
