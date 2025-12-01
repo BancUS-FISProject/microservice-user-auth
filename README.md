@@ -1,46 +1,260 @@
-User/Auth Microservice
-======================
+# Microservicio de Usuarios y Autenticación
 
-API de usuarios y autenticación con NestJS + MongoDB. Se ejecuta vía Docker Compose (API + Mongo).
+## Información General
 
-Requisitos
-----------
-- Docker y Docker Compose
+**Base URL:** `http://localhost:3000/v1`  
+**Documentación Swagger:** `http://localhost:3000/api`  
+**Versión API:** v1  
+**Protocolo:** HTTP/HTTPS  
+**Persistencia:** MongoDB  
+**Imagen Docker estable:** `rubjimjim/microservice-userauth:latest`  
+**Comando:** `docker pull rubjimjim/microservice-userauth:latest`  
+**Imagen por commit/PR:** `docker pull rubjimjim/microservice-userauth:<tag>` (tags en https://github.com/BancUS-FISProject/microservice-user-auth/tree/<tag>)
 
-Configuración (.env)
---------------------
-Crea un `.env` (puedes copiar `.env.example`). Variables disponibles:
-- `PORT`: puerto de la API dentro del contenedor (y mapeo al host). Por defecto `3000`.
-- `MONGO_EXPOSED_PORT`: puerto en el host para exponer MongoDB. Por defecto `27018`.
-- `MONGO_HOST`: host interno al que conectará la API. Por defecto `mongo` (nombre del servicio).
-- `MONGO_PORT`: puerto interno de MongoDB dentro de la red de Docker. Por defecto `27017`.
-- `MONGO_DB`: nombre de la base de datos. Por defecto `userauth_db`.
-- `MONGO_URI`: URI completa; si se define tiene prioridad sobre las variables anteriores.
+---
+
+## Endpoints Disponibles
+
+Cada endpoint incluye cuerpo esperado y ejemplos de respuesta.
+
+### 1. POST `/v1/users` — Crear usuario
+- Cuerpo:
+```json
+{
+  "email": "john.doe@example.com",
+  "name": "John Doe",
+  "password": "s3cretPass",
+  "phoneNumber": "+34123456789"
+}
+```
+- Respuesta `201`:
+```json
+{
+  "id": 1,
+  "email": "john.doe@example.com",
+  "name": "John Doe",
+  "phoneNumber": "+34123456789"
+}
+```
+- Errores: `400` datos duplicados o inválidos.
+- Ejemplo cURL:
+```bash
+curl -X POST http://localhost:3000/v1/users \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "john.doe@example.com",
+    "name": "John Doe",
+    "password": "s3cretPass",
+    "phoneNumber": "+34123456789"
+  }'
+```
+
+---
+
+### 2. GET `/v1/users/{id}` — Obtener usuario
+- Parámetros: `id` (integer).
+- Respuesta `200`:
+```json
+{
+  "id": 1,
+  "email": "john.doe@example.com",
+  "name": "John Doe",
+  "phoneNumber": "+34123456789"
+}
+```
+- Errores: `404` no encontrado.
+- Ejemplo cURL:
+```bash
+curl -X GET http://localhost:3000/v1/users/1
+```
+
+---
+
+### 3. PUT `/v1/users/{id}` — Reemplazar usuario
+- Parámetros: `id` (integer).
+- Cuerpo:
+```json
+{
+  "email": "aledb@bancus.com",
+  "name": "Alejandro Díaz Brenes",
+  "password": "123456",
+  "phoneNumber": "+34633444555"
+}
+```
+- Respuesta `200`:
+```json
+{
+  "id": 1,
+  "email": "aledb@bancus.com",
+  "name": "Alejandro Díaz Brenes",
+  "phoneNumber": "+34633444555"
+}
+```
+- Errores: `400` datos duplicados o inválidos, `404` no encontrado.
+- Ejemplo cURL:
+```bash
+curl -X PUT http://localhost:3000/v1/users/1 \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "aledb@bancus.com",
+    "name": "Alejandro Díaz Brenes",
+    "password": "123456",
+    "phoneNumber": "+34633444555"
+  }'
+```
+
+---
+
+### 4. PATCH `/v1/users/{id}` — Actualización parcial
+- Parámetros: `id` (integer).
+- Cuerpo (elige un campo: `name`, `passwordHash`, `phoneNumber`, `email`):
+```json
+{
+  "field": "phoneNumber",
+  "value": "+34666000111"
+}
+```
+- Respuesta `200`:
+```json
+{
+  "id": 1,
+  "email": "john.doe@example.com",
+  "name": "John Doe",
+  "phoneNumber": "+34666000111"
+}
+```
+- Errores: `400` datos inválidos, `404` no encontrado.
+- Ejemplo cURL:
+```bash
+curl -X PATCH http://localhost:3000/v1/users/1 \
+  -H "Content-Type: application/json" \
+  -d '{"field": "phoneNumber", "value": "+34666000111"}'
+```
+
+---
+
+### 5. DELETE `/v1/users/{id}` — Eliminar usuario
+- Parámetros: `id` (integer).
+- Respuesta `204` sin cuerpo.
+- Errores: `404` no encontrado.
+- Ejemplo cURL:
+```bash
+curl -X DELETE http://localhost:3000/v1/users/1
+```
+
+---
+
+### 6. DELETE `/v1/users` — Vaciar colección
+- Respuesta `204` sin cuerpo.
+- Ejemplo cURL:
+```bash
+curl -X DELETE http://localhost:3000/v1/users
+```
+
+---
+
+### 7. GET `/v1/users` — Listar usuarios
+- Respuesta `200` (array):
+```json
+[
+  {
+    "id": 1,
+    "email": "john.doe@example.com",
+    "name": "John Doe",
+    "phoneNumber": "+34123456789"
+  }
+]
+```
+- Ejemplo cURL:
+```bash
+curl -X GET http://localhost:3000/v1/users
+```
+
+---
+
+### 8. GET `/v1/users/email/{email}` — Buscar por email
+- Parámetros: `email` (string).
+- Respuesta `200`:
+```json
+{
+  "id": 1,
+  "email": "john.doe@example.com",
+  "name": "John Doe",
+  "phoneNumber": "+34123456789"
+}
+```
+- Errores: `404` no encontrado.
+- Ejemplo cURL:
+```bash
+curl -X GET http://localhost:3000/v1/users/email/john.doe@example.com
+```
+
+---
+
+### 9. POST `/v1/auth/login` — Obtener token JWT
+- Cuerpo:
+```json
+{
+  "email": "john.doe@example.com",
+  "password": "s3cretPass"
+}
+```
+- Respuesta `200`:
+```json
+{
+  "access_token": "eyJhbGciOiJIUzI1NiIsInR..."
+}
+```
+- Errores: `401` credenciales inválidas.
+- Ejemplo cURL:
+```bash
+curl -X POST http://localhost:3000/v1/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email": "john.doe@example.com", "password": "s3cretPass"}'
+```
+
+---
+
+## Códigos de Respuesta HTTP
+
+| Código | Significado | Descripción |
+|--------|-------------|-------------|
+| `200` | OK | Operación exitosa |
+| `201` | Created | Recurso creado |
+| `204` | No Content | Eliminación sin cuerpo de respuesta |
+| `400` | Bad Request | Datos inválidos o duplicados |
+| `401` | Unauthorized | Credenciales incorrectas |
+| `404` | Not Found | Recurso inexistente |
+
+---
+
+## Configuración de Desarrollo
+
+### Variables de entorno
+Replica `.env.example` a `.env` y ajusta según necesidad:
+- `PORT`: puerto expuesto de la API (default `3000`).
+- `MONGO_EXPOSED_PORT`: puerto para MongoDB en el host (default `27018`).
+- `MONGO_HOST`: host interno de MongoDB (default `mongo`).
+- `MONGO_PORT`: puerto interno de MongoDB (default `27017`).
+- `MONGO_DB`: nombre de la base de datos (default `userauth_db`).
+- `MONGO_URI`: URI completa; si existe tiene prioridad sobre el resto.
 - `JWT_SECRET`: secreto para firmar tokens.
 
-Arranque con Docker Compose
----------------------------
-1) Configura el `.env`.  
-2) Levanta los servicios:
-   ```
-   docker compose up --build
-   ```
-3) Endpoints:
-   - API: http://localhost:3000 (o el puerto que hayas puesto en `PORT`)
-   - Swagger UI: http://localhost:3000/api
-   - MongoDB expuesto en el host en `localhost:27018` (o el valor de `MONGO_EXPOSED_PORT`)
+### Docker Compose
+```bash
+# Iniciar servicios
+docker compose up --build
 
-Comandos útiles (dentro del contenedor)
----------------------------------------
-Si necesitas ejecutar scripts de npm:
+# Ver logs del servicio API
+docker compose logs -f api
+
+# Reiniciar servicio API
+docker compose restart api
 ```
+
+### Comandos útiles dentro del contenedor
+```bash
 docker compose exec api npm run lint
 docker compose exec api npm test
 docker compose exec api npm run build
 ```
-
-Notas
------
-- Si defines `MONGO_URI`, la app la usará directamente; en caso contrario, construye la URI con `MONGO_HOST` + `MONGO_PORT` + `MONGO_DB`.
-- El servicio `api` espera que `mongo` esté disponible en la red interna de Docker (resolviendo por nombre de servicio).
-- Swagger está montado en `/api` y requiere `Bearer` cuando se active el flujo JWT.
