@@ -3,11 +3,20 @@ import { AppModule } from './app.module';
 import { ValidationPipe, VersioningType } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { ConfigService } from '@nestjs/config';
+import { AppLogger } from './common/logger/app-logger.service';
+import { HttpLoggingInterceptor } from './common/logger/http-logging.interceptor';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const logger = new AppLogger();
+  const app = await NestFactory.create(AppModule, {
+    bufferLogs: true,
+    logger,
+  });
   const configService = app.get(ConfigService);
   const apiVersion = '1';
+
+  app.useLogger(logger);
+  app.useGlobalInterceptors(new HttpLoggingInterceptor(logger));
 
   app.useGlobalPipes(
     // Validacion DTO
@@ -38,5 +47,6 @@ async function bootstrap() {
 
   const port = parseInt(configService.get<string>('PORT') ?? '3000', 10);
   await app.listen(port);
+  logger.log(`Users & Auth service listening on port ${port}`, 'Bootstrap');
 }
 void bootstrap();
