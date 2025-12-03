@@ -1,4 +1,4 @@
-import { LoggerService, LogLevel } from '@nestjs/common';
+import { LoggerService } from '@nestjs/common';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 
@@ -134,7 +134,9 @@ export class AppLogger implements LoggerService {
       const files = await fs.promises.readdir(this.logDir);
       const escapedBase = this.escapeRegex(this.baseName);
       const escapedExt = this.escapeRegex(this.extension);
-      const pattern = new RegExp(`^${escapedBase}-\\d{4}-\\d{2}-\\d{2}${escapedExt}$`);
+      const pattern = new RegExp(
+        `^${escapedBase}-\\d{4}-\\d{2}-\\d{2}${escapedExt}$`,
+      );
 
       const matching = files.filter((file) => pattern.test(file)).sort();
 

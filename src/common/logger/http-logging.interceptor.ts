@@ -1,6 +1,7 @@
 import {
   CallHandler,
   ExecutionContext,
+  HttpException,
   Injectable,
   NestInterceptor,
 } from '@nestjs/common';
@@ -28,15 +29,16 @@ export class HttpLoggingInterceptor implements NestInterceptor {
           'HTTP',
         );
       }),
-      catchError((err) => {
+      catchError((error: unknown) => {
         const duration = Date.now() - start;
-        const status = err?.status ?? 500;
+        const status = error instanceof HttpException ? error.getStatus() : 500;
+        const stack = error instanceof Error ? (error.stack ?? '') : '';
         this.logger.error(
           `${method} ${originalUrl} ${status} - ${duration}ms`,
-          err?.stack ?? '',
+          stack,
           'HTTP',
         );
-        return throwError(() => err);
+        return throwError(() => error);
       }),
     );
   }
