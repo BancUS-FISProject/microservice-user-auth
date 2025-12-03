@@ -239,6 +239,10 @@ Replica `.env.example` a `.env` y ajusta según necesidad:
 - `MONGO_DB`: nombre de la base de datos (default `userauth_db`).
 - `MONGO_URI`: URI completa; si existe tiene prioridad sobre el resto.
 - `JWT_SECRET`: secreto para firmar tokens.
+- `LOG_LEVEL`: nivel de log (`error`, `warn`, `log`, `debug`, `verbose`); default `log`.
+- `LOG_FILE`: nombre base del archivo de logs rotados; default `microservice-user-auth.log`.
+- `LOG_DIR`: directorio donde se guardan los logs; default `logs`. Se encuentran en `/usr/src/app/logs` dentro del contenedor.
+- `LOG_BACKUP_COUNT`: número de archivos diarios a conservar; default `7`.
 
 ### Docker Compose
 ```bash
@@ -258,3 +262,7 @@ docker compose exec api npm run lint
 docker compose exec api npm test
 docker compose exec api npm run build
 ```
+
+## Logging
+- El servicio usa un logger propio que escribe a consola y a archivos diarios en `LOG_DIR/LOG_FILE-YYYY-MM-DD.log`, conservando `LOG_BACKUP_COUNT` ficheros.
+- Cada petición HTTP queda registrada (método, URL, estado, tiempo). Los errores incluyen stack. Ajusta `LOG_LEVEL` y rutas mediante las variables de entorno listadas arriba.
