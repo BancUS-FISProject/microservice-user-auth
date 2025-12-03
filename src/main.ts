@@ -5,6 +5,7 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { ConfigService } from '@nestjs/config';
 import { AppLogger } from './common/logger/app-logger.service';
 import { HttpLoggingInterceptor } from './common/logger/http-logging.interceptor';
+import { HealthService } from './health/health.service';
 
 async function bootstrap() {
   const logger = new AppLogger();
@@ -48,5 +49,8 @@ async function bootstrap() {
   const port = parseInt(configService.get<string>('PORT') ?? '3000', 10);
   await app.listen(port);
   logger.log(`Users & Auth service listening on port ${port}`, 'Bootstrap');
+
+  const health = app.get(HealthService);
+  health.markReady();
 }
 void bootstrap();

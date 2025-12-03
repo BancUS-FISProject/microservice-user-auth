@@ -244,6 +244,11 @@ Replica `.env.example` a `.env` y ajusta según necesidad:
 - `LOG_DIR`: directorio donde se guardan los logs; default `logs`. Se encuentran en `/usr/src/app/logs` dentro del contenedor.
 - `LOG_BACKUP_COUNT`: número de archivos diarios a conservar; default `7`.
 
+### Endpoints de salud
+GET `/v1/health` devuelve:
+- `200` `{ "status": "UP", "service": "user-auth" }` cuando el servicio está listo.
+- `503` `{ "status": "STARTING", "detail": "Connecting to resources..." }` mientras inicializa.
+
 ### Docker Compose
 ```bash
 # Iniciar servicios
