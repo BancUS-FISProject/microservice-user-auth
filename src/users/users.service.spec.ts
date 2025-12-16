@@ -78,7 +78,7 @@ describe('UsersService', () => {
       findOneLeanMock.mockResolvedValueOnce({ id: 2 });
       const hashed = 'hashedPassword';
       hashMock.mockResolvedValueOnce(hashed);
-      const savedDoc = { id: 3, ...dto, passwordHash: hashed };
+      const savedDoc = { id: 3, ...dto, passwordHash: hashed, plan: 'basic' };
       saveMock.mockResolvedValueOnce(savedDoc);
 
       const result = await service.signInUser(dto);
@@ -90,6 +90,7 @@ describe('UsersService', () => {
         name: dto.name,
         passwordHash: hashed,
         phoneNumber: dto.phoneNumber,
+        plan: 'basic',
       });
       expect(saveMock).toHaveBeenCalledTimes(1);
       expect(result).toEqual(savedDoc);
@@ -153,7 +154,7 @@ describe('UsersService', () => {
 
     it('should update and return user', async () => {
       hashMock.mockResolvedValueOnce('hashed');
-      const updated = { id: 1, ...dto, passwordHash: 'hashed' };
+      const updated = { id: 1, ...dto, passwordHash: 'hashed', plan: 'basic' };
       findOneAndUpdateExecMock.mockResolvedValueOnce(updated);
 
       const result = await service.updateUser(1, dto);
@@ -166,6 +167,7 @@ describe('UsersService', () => {
           email: dto.email,
           passwordHash: 'hashed',
           phoneNumber: dto.phoneNumber,
+          plan: 'basic',
         },
         { new: true, runValidators: true },
       );
