@@ -26,6 +26,7 @@ services:
       MONGO_HOST: ${MONGO_HOST:-mongo}
       MONGO_PORT: ${MONGO_PORT:-27017}
       MONGO_DB: ${MONGO_DB:-userauth_db}
+      JWT_SECRET: ${JWT_SECRET:-changeme}
     depends_on:
       - mongo
 
