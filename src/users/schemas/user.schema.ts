@@ -19,6 +19,13 @@ export class User {
 
   @Prop({ required: true, unique: true })
   phoneNumber: string;
+
+  @Prop({
+    required: true,
+    enum: ['basic', 'premium', 'business'],
+    default: 'basic',
+  })
+  plan: 'basic' | 'premium' | 'business';
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

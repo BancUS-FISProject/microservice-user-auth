@@ -37,6 +37,7 @@ export class UsersService {
       name: data.name,
       passwordHash: passwordHash,
       phoneNumber: data.phoneNumber,
+      plan: data.plan ?? 'basic',
     };
 
     const newUser = new this.userModel(userToSave);
@@ -81,6 +82,7 @@ export class UsersService {
       email: data.email,
       passwordHash,
       phoneNumber: data.phoneNumber,
+      plan: data.plan ?? 'basic',
     };
 
     try {
@@ -118,6 +120,8 @@ export class UsersService {
       updatePayload.phoneNumber = data.value;
     } else if (data.field === 'email') {
       updatePayload.email = data.value;
+    } else if (data.field === 'plan') {
+      updatePayload.plan = data.value as User['plan'];
     }
 
     try {

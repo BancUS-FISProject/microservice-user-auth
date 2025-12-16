@@ -205,6 +205,7 @@ curl -X GET http://localhost:3000/v1/users/email/john.doe@example.com
   "access_token": "eyJhbGciOiJIUzI1NiIsInR..."
 }
 ```
+- El payload firmado incluye `email`, `sub` (id interno) y el plan del usuario (`basic`, `premium`, `business`).
 - Errores: `401` credenciales inválidas.
 - Ejemplo cURL:
 ```bash
