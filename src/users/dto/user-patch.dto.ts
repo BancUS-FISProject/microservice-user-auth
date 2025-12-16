@@ -10,12 +10,12 @@ import { ApiProperty } from '@nestjs/swagger';
 
 export class UserPatchDto {
   @ApiProperty({
-    enum: ['name', 'passwordHash', 'phoneNumber', 'email'],
+    enum: ['name', 'passwordHash', 'phoneNumber', 'email', 'plan'],
     example: 'phoneNumber',
   })
   @IsString()
-  @IsIn(['name', 'passwordHash', 'phoneNumber', 'email'])
-  field: 'name' | 'passwordHash' | 'phoneNumber' | 'email';
+  @IsIn(['name', 'passwordHash', 'phoneNumber', 'email', 'plan'])
+  field: 'name' | 'passwordHash' | 'phoneNumber' | 'email' | 'plan';
 
   @ApiProperty({
     example: '+34666000111',
@@ -31,5 +31,7 @@ export class UserPatchDto {
   @MinLength(6)
   @ValidateIf((o: UserPatchDto) => o.field === 'name')
   @MinLength(3)
+  @ValidateIf((o: UserPatchDto) => o.field === 'plan')
+  @IsIn(['basic', 'premium', 'business'])
   value: string;
 }

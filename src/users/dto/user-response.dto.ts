@@ -12,4 +12,11 @@ export class UserResponseDto {
 
   @ApiProperty({ example: '+34123456789' })
   phoneNumber: string;
+
+  @ApiProperty({
+    example: 'premium',
+    enum: ['basic', 'premium', 'business'],
+    description: 'Pricing plan assigned to the user',
+  })
+  plan: 'basic' | 'premium' | 'business';
 }
