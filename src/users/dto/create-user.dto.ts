@@ -1,6 +1,5 @@
 import {
   IsEmail,
-  IsIBAN,
   IsIn,
   IsOptional,
   IsPhoneNumber,
@@ -10,10 +9,6 @@ import {
 import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateUserDto {
-  @ApiProperty({ example: 'ES9820385778983000760236' })
-  @IsIBAN()
-  iban: string;
-
   @ApiProperty({ example: 'marmedsan@bancus.com' })
   @IsEmail()
   email: string;
