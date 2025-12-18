@@ -68,24 +68,29 @@ describe('UsersService', () => {
 
   describe('signInUser', () => {
     const dto = {
+      iban: 'ES9820385778983000760236',
       email: 'test@example.com',
       name: 'Test User',
       password: 'password',
       phoneNumber: '+34611222333',
     };
 
-    it('should hash password, set next id and save user', async () => {
-      findOneLeanMock.mockResolvedValueOnce({ id: 2 });
+    it('should hash password and save user', async () => {
       const hashed = 'hashedPassword';
       hashMock.mockResolvedValueOnce(hashed);
-      const savedDoc = { id: 3, ...dto, passwordHash: hashed, plan: 'basic' };
+      const savedDoc = {
+        iban: dto.iban,
+        ...dto,
+        passwordHash: hashed,
+        plan: 'basic',
+      };
       saveMock.mockResolvedValueOnce(savedDoc);
 
       const result = await service.signInUser(dto);
 
       expect(bcrypt.hash).toHaveBeenCalledWith(dto.password, 10);
       expect(mockUserModel).toHaveBeenCalledWith({
-        id: 3,
+        iban: dto.iban,
         email: dto.email,
         name: dto.name,
         passwordHash: hashed,
@@ -118,34 +123,43 @@ describe('UsersService', () => {
 
   describe('getUsers', () => {
     it('should return all users', async () => {
-      findExecMock.mockResolvedValueOnce([{ id: 1 }]);
+      findExecMock.mockResolvedValueOnce([
+        { iban: 'ES9820385778983000760236' },
+      ]);
 
       const result = await service.getUsers();
 
       expect(mockUserModel.find).toHaveBeenCalledWith();
-      expect(result).toEqual([{ id: 1 }]);
+      expect(result).toEqual([{ iban: 'ES9820385778983000760236' }]);
     });
   });
 
   describe('fetchUser', () => {
     it('should return user if found', async () => {
-      findOneExecMock.mockResolvedValueOnce({ id: 1 });
+      findOneExecMock.mockResolvedValueOnce({
+        iban: 'ES9820385778983000760236',
+      });
 
-      const result = await service.fetchUser(1);
+      const result = await service.fetchUser('ES9820385778983000760236');
 
-      expect(mockUserModel.findOne).toHaveBeenCalledWith({ id: 1 });
-      expect(result).toEqual({ id: 1 });
+      expect(mockUserModel.findOne).toHaveBeenCalledWith({
+        iban: 'ES9820385778983000760236',
+      });
+      expect(result).toEqual({ iban: 'ES9820385778983000760236' });
     });
 
     it('should throw NotFoundException if user not found', async () => {
       findOneExecMock.mockResolvedValueOnce(null);
 
-      await expect(service.fetchUser(1)).rejects.toThrow(NotFoundException);
+      await expect(
+        service.fetchUser('ES9820385778983000760236'),
+      ).rejects.toThrow(NotFoundException);
     });
   });
 
   describe('updateUser', () => {
     const dto = {
+      iban: 'ES9820385778983000760236',
       email: 'test@example.com',
       name: 'Test',
       password: 'pass',
@@ -154,14 +168,19 @@ describe('UsersService', () => {
 
     it('should update and return user', async () => {
       hashMock.mockResolvedValueOnce('hashed');
-      const updated = { id: 1, ...dto, passwordHash: 'hashed', plan: 'basic' };
+      const updated = {
+        iban: dto.iban,
+        ...dto,
+        passwordHash: 'hashed',
+        plan: 'basic',
+      };
       findOneAndUpdateExecMock.mockResolvedValueOnce(updated);
 
-      const result = await service.updateUser(1, dto);
+      const result = await service.updateUser(dto.iban, dto);
 
       expect(hashMock).toHaveBeenCalledWith(dto.password, 10);
       expect(mockUserModel.findOneAndUpdate).toHaveBeenCalledWith(
-        { id: 1 },
+        { iban: dto.iban },
         {
           name: dto.name,
           email: dto.email,
@@ -178,7 +197,7 @@ describe('UsersService', () => {
       hashMock.mockResolvedValueOnce('hashed');
       findOneAndUpdateExecMock.mockResolvedValueOnce(null);
 
-      await expect(service.updateUser(1, dto)).rejects.toThrow(
+      await expect(service.updateUser(dto.iban, dto)).rejects.toThrow(
         NotFoundException,
       );
     });
@@ -190,7 +209,7 @@ describe('UsersService', () => {
         keyValue: { email: dto.email },
       });
 
-      const promise = service.updateUser(1, dto);
+      const promise = service.updateUser(dto.iban, dto);
       await expect(promise).rejects.toThrow(BadRequestException);
       await expect(promise).rejects.toThrow('Duplicate value for email');
     });
@@ -199,7 +218,7 @@ describe('UsersService', () => {
       hashMock.mockResolvedValueOnce('hashed');
       findOneAndUpdateExecMock.mockRejectedValueOnce(new Error('invalid'));
 
-      const promise = service.updateUser(1, dto);
+      const promise = service.updateUser(dto.iban, dto);
       await expect(promise).rejects.toThrow(BadRequestException);
       await expect(promise).rejects.toThrow('Invalid update payload');
     });
@@ -209,46 +228,58 @@ describe('UsersService', () => {
     it('should patch password hashing when field is passwordHash', async () => {
       hashMock.mockResolvedValueOnce('hashed');
       findOneAndUpdateExecMock.mockResolvedValueOnce({
-        id: 1,
+        iban: 'ES9820385778983000760236',
         passwordHash: 'hashed',
       });
 
-      const result = await service.patchUser(1, {
+      const result = await service.patchUser('ES9820385778983000760236', {
         field: 'passwordHash',
         value: 'new',
       });
 
       expect(hashMock).toHaveBeenCalledWith('new', 10);
       expect(mockUserModel.findOneAndUpdate).toHaveBeenCalledWith(
-        { id: 1 },
+        { iban: 'ES9820385778983000760236' },
         { passwordHash: 'hashed' },
         { new: true, runValidators: true },
       );
-      expect(result).toEqual({ id: 1, passwordHash: 'hashed' });
+      expect(result).toEqual({
+        iban: 'ES9820385778983000760236',
+        passwordHash: 'hashed',
+      });
     });
 
     it('should patch a non-password field without hashing', async () => {
-      findOneAndUpdateExecMock.mockResolvedValueOnce({ id: 1, name: 'New' });
+      findOneAndUpdateExecMock.mockResolvedValueOnce({
+        iban: 'ES9820385778983000760236',
+        name: 'New',
+      });
 
-      const result = await service.patchUser(1, {
+      const result = await service.patchUser('ES9820385778983000760236', {
         field: 'name',
         value: 'New',
       });
 
       expect(hashMock).not.toHaveBeenCalled();
       expect(mockUserModel.findOneAndUpdate).toHaveBeenCalledWith(
-        { id: 1 },
+        { iban: 'ES9820385778983000760236' },
         { name: 'New' },
         { new: true, runValidators: true },
       );
-      expect(result).toEqual({ id: 1, name: 'New' });
+      expect(result).toEqual({
+        iban: 'ES9820385778983000760236',
+        name: 'New',
+      });
     });
 
     it('should throw NotFoundException when user does not exist', async () => {
       findOneAndUpdateExecMock.mockResolvedValueOnce(null);
 
       await expect(
-        service.patchUser(1, { field: 'name', value: 'New' }),
+        service.patchUser('ES9820385778983000760236', {
+          field: 'name',
+          value: 'New',
+        }),
       ).rejects.toThrow(NotFoundException);
     });
 
@@ -258,7 +289,10 @@ describe('UsersService', () => {
         keyValue: { email: 'x' },
       });
 
-      const promise = service.patchUser(1, { field: 'email', value: 'x' });
+      const promise = service.patchUser('ES9820385778983000760236', {
+        field: 'email',
+        value: 'x',
+      });
       await expect(promise).rejects.toThrow(BadRequestException);
       await expect(promise).rejects.toThrow('Duplicate value for email');
     });
@@ -266,7 +300,10 @@ describe('UsersService', () => {
     it('should throw BadRequestException on invalid payload', async () => {
       findOneAndUpdateExecMock.mockRejectedValueOnce(new Error('invalid'));
 
-      const promise = service.patchUser(1, { field: 'email', value: 'x' });
+      const promise = service.patchUser('ES9820385778983000760236', {
+        field: 'email',
+        value: 'x',
+      });
       await expect(promise).rejects.toThrow(BadRequestException);
       await expect(promise).rejects.toThrow('Invalid patch payload');
     });
@@ -274,18 +311,24 @@ describe('UsersService', () => {
 
   describe('deleteUser', () => {
     it('should delete and return user', async () => {
-      findOneAndDeleteExecMock.mockResolvedValueOnce({ id: 1 });
+      findOneAndDeleteExecMock.mockResolvedValueOnce({
+        iban: 'ES9820385778983000760236',
+      });
 
-      const result = await service.deleteUser(1);
+      const result = await service.deleteUser('ES9820385778983000760236');
 
-      expect(mockUserModel.findOneAndDelete).toHaveBeenCalledWith({ id: 1 });
-      expect(result).toEqual({ id: 1 });
+      expect(mockUserModel.findOneAndDelete).toHaveBeenCalledWith({
+        iban: 'ES9820385778983000760236',
+      });
+      expect(result).toEqual({ iban: 'ES9820385778983000760236' });
     });
 
     it('should throw NotFoundException when user does not exist', async () => {
       findOneAndDeleteExecMock.mockResolvedValueOnce(null);
 
-      await expect(service.deleteUser(1)).rejects.toThrow(NotFoundException);
+      await expect(
+        service.deleteUser('ES9820385778983000760236'),
+      ).rejects.toThrow(NotFoundException);
     });
   });
 

@@ -21,6 +21,7 @@ Cada endpoint incluye cuerpo esperado y ejemplos de respuesta.
 - Cuerpo:
 ```json
 {
+  "iban": "ES9820385778983000760236",
   "email": "john.doe@example.com",
   "name": "John Doe",
   "password": "s3cretPass",
@@ -30,7 +31,7 @@ Cada endpoint incluye cuerpo esperado y ejemplos de respuesta.
 - Respuesta `201`:
 ```json
 {
-  "id": 1,
+  "iban": "ES9820385778983000760236",
   "email": "john.doe@example.com",
   "name": "John Doe",
   "phoneNumber": "+34123456789"
@@ -42,6 +43,7 @@ Cada endpoint incluye cuerpo esperado y ejemplos de respuesta.
 curl -X POST http://localhost:3000/v1/users \
   -H "Content-Type: application/json" \
   -d '{
+    "iban": "ES9820385778983000760236",
     "email": "john.doe@example.com",
     "name": "John Doe",
     "password": "s3cretPass",
@@ -51,12 +53,12 @@ curl -X POST http://localhost:3000/v1/users \
 
 ---
 
-### 2. GET `/v1/users/{id}` — Obtener usuario
-- Parámetros: `id` (integer).
+### 2. GET `/v1/users/{identifier}` — Obtener usuario por IBAN o email
+- Parámetros: `identifier` (string IBAN o email).
 - Respuesta `200`:
 ```json
 {
-  "id": 1,
+  "iban": "ES9820385778983000760236",
   "email": "john.doe@example.com",
   "name": "John Doe",
   "phoneNumber": "+34123456789"
@@ -65,16 +67,19 @@ curl -X POST http://localhost:3000/v1/users \
 - Errores: `404` no encontrado.
 - Ejemplo cURL:
 ```bash
-curl -X GET http://localhost:3000/v1/users/1
+curl -X GET http://localhost:3000/v1/users/ES9820385778983000760236
+# o bien por email:
+# curl -X GET http://localhost:3000/v1/users/john.doe@example.com
 ```
 
 ---
 
-### 3. PUT `/v1/users/{id}` — Reemplazar usuario
-- Parámetros: `id` (integer).
+### 3. PUT `/v1/users/{iban}` — Reemplazar usuario
+- Parámetros: `iban` (string).
 - Cuerpo:
 ```json
 {
+  "iban": "ES9820385778983000760236",
   "email": "aledb@bancus.com",
   "name": "Alejandro Díaz Brenes",
   "password": "123456",
@@ -84,7 +89,7 @@ curl -X GET http://localhost:3000/v1/users/1
 - Respuesta `200`:
 ```json
 {
-  "id": 1,
+  "iban": "ES9820385778983000760236",
   "email": "aledb@bancus.com",
   "name": "Alejandro Díaz Brenes",
   "phoneNumber": "+34633444555"
@@ -93,9 +98,10 @@ curl -X GET http://localhost:3000/v1/users/1
 - Errores: `400` datos duplicados o inválidos, `404` no encontrado.
 - Ejemplo cURL:
 ```bash
-curl -X PUT http://localhost:3000/v1/users/1 \
+curl -X PUT http://localhost:3000/v1/users/ES9820385778983000760236 \
   -H "Content-Type: application/json" \
   -d '{
+    "iban": "ES9820385778983000760236",
     "email": "aledb@bancus.com",
     "name": "Alejandro Díaz Brenes",
     "password": "123456",
@@ -105,8 +111,8 @@ curl -X PUT http://localhost:3000/v1/users/1 \
 
 ---
 
-### 4. PATCH `/v1/users/{id}` — Actualización parcial
-- Parámetros: `id` (integer).
+### 4. PATCH `/v1/users/{iban}` — Actualización parcial
+- Parámetros: `iban` (string).
 - Cuerpo (elige un campo: `name`, `passwordHash`, `phoneNumber`, `email`):
 ```json
 {
@@ -117,7 +123,7 @@ curl -X PUT http://localhost:3000/v1/users/1 \
 - Respuesta `200`:
 ```json
 {
-  "id": 1,
+  "iban": "ES9820385778983000760236",
   "email": "john.doe@example.com",
   "name": "John Doe",
   "phoneNumber": "+34666000111"
@@ -126,20 +132,20 @@ curl -X PUT http://localhost:3000/v1/users/1 \
 - Errores: `400` datos inválidos, `404` no encontrado.
 - Ejemplo cURL:
 ```bash
-curl -X PATCH http://localhost:3000/v1/users/1 \
+curl -X PATCH http://localhost:3000/v1/users/ES9820385778983000760236 \
   -H "Content-Type: application/json" \
   -d '{"field": "phoneNumber", "value": "+34666000111"}'
 ```
 
 ---
 
-### 5. DELETE `/v1/users/{id}` — Eliminar usuario
-- Parámetros: `id` (integer).
+### 5. DELETE `/v1/users/{iban}` — Eliminar usuario
+- Parámetros: `iban` (string).
 - Respuesta `204` sin cuerpo.
 - Errores: `404` no encontrado.
 - Ejemplo cURL:
 ```bash
-curl -X DELETE http://localhost:3000/v1/users/1
+curl -X DELETE http://localhost:3000/v1/users/ES9820385778983000760236
 ```
 
 ---
@@ -158,7 +164,7 @@ curl -X DELETE http://localhost:3000/v1/users
 ```json
 [
   {
-    "id": 1,
+    "iban": "ES9820385778983000760236",
     "email": "john.doe@example.com",
     "name": "John Doe",
     "phoneNumber": "+34123456789"
@@ -172,12 +178,12 @@ curl -X GET http://localhost:3000/v1/users
 
 ---
 
-### 8. GET `/v1/users/email/{email}` — Buscar por email
-- Parámetros: `email` (string).
+### 8. GET `/v1/users/{identifier}` — Buscar por email o IBAN (mismo endpoint)
+- Parámetros: `identifier` (string IBAN o email).
 - Respuesta `200`:
 ```json
 {
-  "id": 1,
+  "iban": "ES9820385778983000760236",
   "email": "john.doe@example.com",
   "name": "John Doe",
   "phoneNumber": "+34123456789"
@@ -186,7 +192,9 @@ curl -X GET http://localhost:3000/v1/users
 - Errores: `404` no encontrado.
 - Ejemplo cURL:
 ```bash
-curl -X GET http://localhost:3000/v1/users/email/john.doe@example.com
+curl -X GET http://localhost:3000/v1/users/john.doe@example.com
+# o por IBAN:
+# curl -X GET http://localhost:3000/v1/users/ES9820385778983000760236
 ```
 
 ---

@@ -1,8 +1,11 @@
 import { ApiProperty } from '@nestjs/swagger';
 
 export class UserResponseDto {
-  @ApiProperty({ example: 1, description: 'User sequential id' })
-  id: number;
+  @ApiProperty({
+    example: 'ES9820385778983000760236',
+    description: 'User IBAN',
+  })
+  iban: string;
 
   @ApiProperty({ example: 'john.doe@example.com' })
   email: string;
