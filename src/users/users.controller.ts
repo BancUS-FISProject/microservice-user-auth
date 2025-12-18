@@ -7,7 +7,6 @@ import {
   Patch,
   Delete,
   Param,
-  ParseIntPipe,
   HttpCode,
 } from '@nestjs/common';
 import {
@@ -36,6 +35,7 @@ export class UsersController {
     type: CreateUserDto,
     schema: {
       example: {
+        iban: 'ES9820385778983000760236',
         email: 'john.doe@example.com',
         name: 'John Doe',
         password: 's3cretPass',
@@ -53,31 +53,37 @@ export class UsersController {
     return this.usersService.signInUser(createUserDto);
   }
 
-  @ApiOperation({ summary: 'Retrieve a single user by id' })
+  @ApiOperation({
+    summary: 'Retrieve a single user by IBAN or email (auto-detected)',
+  })
   @ApiParam({
-    name: 'id',
-    type: Number,
-    example: 1,
-    description: 'User internal id',
+    name: 'identifier',
+    type: String,
+    example: 'ES9820385778983000760236',
+    description: 'User IBAN or email',
   })
   @ApiOkResponse({ description: 'User found', type: UserResponseDto })
   @ApiNotFoundResponse({ description: 'User not found' })
-  @Get(':id')
-  async fetchUser(@Param('id', ParseIntPipe) id: number) {
-    return this.usersService.fetchUser(id);
+  @Get(':identifier')
+  async fetchUser(@Param('identifier') identifier: string) {
+    if (identifier.includes('@')) {
+      return this.usersService.findByEmail(identifier);
+    }
+    return this.usersService.fetchUser(identifier);
   }
 
   @ApiOperation({ summary: 'Overwrite a user profile' })
   @ApiParam({
-    name: 'id',
-    type: Number,
-    example: 1,
-    description: 'User internal id',
+    name: 'iban',
+    type: String,
+    example: 'ES9820385778983000760236',
+    description: 'User IBAN',
   })
   @ApiBody({
     type: CreateUserDto,
     schema: {
       example: {
+        iban: 'ES9820385778983000760236',
         email: 'aledb@bancus.com',
         name: 'Alejandro Díaz Brenes',
         password: '123456',
@@ -88,20 +94,20 @@ export class UsersController {
   @ApiOkResponse({ description: 'User overwritten', type: UserResponseDto })
   @ApiBadRequestResponse({ description: 'Duplicate field or invalid data' })
   @ApiNotFoundResponse({ description: 'User not found' })
-  @Put(':id')
+  @Put(':iban')
   async updateUser(
-    @Param('id', ParseIntPipe) id: number,
+    @Param('iban') iban: string,
     @Body() createUserDto: CreateUserDto,
   ) {
-    return this.usersService.updateUser(id, createUserDto);
+    return this.usersService.updateUser(iban, createUserDto);
   }
 
   @ApiOperation({ summary: 'Update a single field of a user' })
   @ApiParam({
-    name: 'id',
-    type: Number,
-    example: 1,
-    description: 'User internal id',
+    name: 'iban',
+    type: String,
+    example: 'ES9820385778983000760236',
+    description: 'User IBAN',
   })
   @ApiBody({
     type: UserPatchDto,
@@ -119,27 +125,27 @@ export class UsersController {
   @ApiOkResponse({ description: 'User updated', type: UserResponseDto })
   @ApiBadRequestResponse({ description: 'Invalid patch payload' })
   @ApiNotFoundResponse({ description: 'User not found' })
-  @Patch(':id')
+  @Patch(':iban')
   async patchUser(
-    @Param('id', ParseIntPipe) id: number,
+    @Param('iban') iban: string,
     @Body() userPatchDto: UserPatchDto,
   ) {
-    return this.usersService.patchUser(id, userPatchDto);
+    return this.usersService.patchUser(iban, userPatchDto);
   }
 
   @ApiOperation({ summary: 'Remove a user account' })
   @ApiParam({
-    name: 'id',
-    type: Number,
-    example: 1,
-    description: 'User internal id',
+    name: 'iban',
+    type: String,
+    example: 'ES9820385778983000760236',
+    description: 'User IBAN',
   })
-  @Delete(':id')
+  @Delete(':iban')
   @HttpCode(204)
   @ApiNoContentResponse({ description: 'User deleted' })
   @ApiNotFoundResponse({ description: 'User not found' })
-  async deleteUser(@Param('id', ParseIntPipe) id: number) {
-    await this.usersService.deleteUser(id);
+  async deleteUser(@Param('iban') iban: string) {
+    await this.usersService.deleteUser(iban);
   }
 
   @ApiOperation({ summary: 'Remove every user account' })
@@ -159,14 +165,5 @@ export class UsersController {
   @Get()
   findAll() {
     return this.usersService.getUsers();
-  }
-
-  @ApiOperation({ summary: 'Find a user by email' })
-  @ApiParam({ name: 'email', type: String })
-  @ApiOkResponse({ description: 'User found', type: UserResponseDto })
-  @ApiNotFoundResponse({ description: 'User not found' })
-  @Get('email/:email')
-  async findUserByEmail(@Param('email') email: string) {
-    return this.usersService.findByEmail(email);
   }
 }

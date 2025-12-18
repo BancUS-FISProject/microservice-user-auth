@@ -17,22 +17,12 @@ export class UsersService {
     @InjectModel(User.name) private readonly userModel: Model<UserDocument>,
   ) {}
 
-  // TODO - Sospechoso, quiza hay que cambiarlo
-  private async getNextUserId(): Promise<number> {
-    const lastUser = await this.userModel
-      .findOne({}, { id: 1 }, { sort: { id: -1 } })
-      .lean<{ id: number } | null>();
-
-    return lastUser?.id ? lastUser.id + 1 : 1;
-  }
-
   async signInUser(data: CreateUserDto): Promise<UserDocument> {
     const saltRounds = 10;
     const passwordHash = await bcrypt.hash(data.password, saltRounds);
-    const nextId = await this.getNextUserId();
 
     const userToSave: Omit<User, '_id'> = {
-      id: nextId,
+      iban: data.iban,
       email: data.email,
       name: data.name,
       passwordHash: passwordHash,
@@ -56,10 +46,10 @@ export class UsersService {
     return this.userModel.find().exec();
   }
 
-  async fetchUser(id: number): Promise<UserDocument> {
-    const user = await this.userModel.findOne({ id }).exec();
+  async fetchUser(iban: string): Promise<UserDocument> {
+    const user = await this.userModel.findOne({ iban }).exec();
     if (!user) {
-      throw new NotFoundException(`User with id ${id} not found`);
+      throw new NotFoundException(`User with iban ${iban} not found`);
     }
     return user;
   }
@@ -73,7 +63,7 @@ export class UsersService {
     return user;
   }
 
-  async updateUser(id: number, data: CreateUserDto): Promise<UserDocument> {
+  async updateUser(iban: string, data: CreateUserDto): Promise<UserDocument> {
     const saltRounds = 10;
     const passwordHash = await bcrypt.hash(data.password, saltRounds);
 
@@ -87,13 +77,13 @@ export class UsersService {
 
     try {
       const updated = await this.userModel
-        .findOneAndUpdate({ id }, updatePayload, {
+        .findOneAndUpdate({ iban }, updatePayload, {
           new: true,
           runValidators: true,
         })
         .exec();
       if (!updated) {
-        throw new NotFoundException(`User with id ${id} not found`);
+        throw new NotFoundException(`User with iban ${iban} not found`);
       }
       return updated;
     } catch (error: unknown) {
@@ -108,7 +98,7 @@ export class UsersService {
     }
   }
 
-  async patchUser(id: number, data: UserPatchDto): Promise<UserDocument> {
+  async patchUser(iban: string, data: UserPatchDto): Promise<UserDocument> {
     const saltRounds = 10;
     const updatePayload: Partial<User> = {};
 
@@ -126,13 +116,13 @@ export class UsersService {
 
     try {
       const patched = await this.userModel
-        .findOneAndUpdate({ id }, updatePayload, {
+        .findOneAndUpdate({ iban }, updatePayload, {
           new: true,
           runValidators: true,
         })
         .exec();
       if (!patched) {
-        throw new NotFoundException(`User with id ${id} not found`);
+        throw new NotFoundException(`User with iban ${iban} not found`);
       }
       return patched;
     } catch (error: unknown) {
@@ -147,10 +137,10 @@ export class UsersService {
     }
   }
 
-  async deleteUser(id: number): Promise<UserDocument> {
-    const deleted = await this.userModel.findOneAndDelete({ id }).exec();
+  async deleteUser(iban: string): Promise<UserDocument> {
+    const deleted = await this.userModel.findOneAndDelete({ iban }).exec();
     if (!deleted) {
-      throw new NotFoundException(`User with id ${id} not found`);
+      throw new NotFoundException(`User with iban ${iban} not found`);
     }
     return deleted;
   }

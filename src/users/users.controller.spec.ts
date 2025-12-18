@@ -8,6 +8,7 @@ describe('UsersController', () => {
   const mockUsersService = {
     signInUser: jest.fn(),
     fetchUser: jest.fn(),
+    findByEmail: jest.fn(),
     updateUser: jest.fn(),
     patchUser: jest.fn(),
     deleteUser: jest.fn(),
@@ -35,6 +36,7 @@ describe('UsersController', () => {
   describe('signInUser', () => {
     it('should call usersService.signInUser with correct parameters', async () => {
       const dto = {
+        iban: 'ES9820385778983000760236',
         email: 'test@example.com',
         name: 'Test User',
         password: 'password',
@@ -46,18 +48,23 @@ describe('UsersController', () => {
 
     it('should return the result from usersService.signInUser', async () => {
       const dto = {
+        iban: 'ES9820385778983000760236',
         email: 'test@example.com',
         name: 'Test User',
         password: 'password',
         phoneNumber: '+34611222333',
       };
-      mockUsersService.signInUser.mockResolvedValueOnce({ id: '1', ...dto });
+      mockUsersService.signInUser.mockResolvedValueOnce({
+        iban: dto.iban,
+        ...dto,
+      });
       const result = await controller.signInUser(dto);
-      expect(result).toEqual({ id: '1', ...dto });
+      expect(result).toEqual({ iban: dto.iban, ...dto });
     });
 
     it('should propagate errors from usersService.signInUser', async () => {
       const dto = {
+        iban: 'ES9820385778983000760236',
         email: 'test@example.com',
         name: 'Test User',
         password: 'password',
@@ -69,90 +76,148 @@ describe('UsersController', () => {
   });
 
   describe('fetchUser', () => {
-    it('should call usersService.fetchUser with id', async () => {
-      mockUsersService.fetchUser.mockResolvedValueOnce({ id: 1 });
-      await controller.fetchUser(1);
-      expect(mockUsersService.fetchUser).toHaveBeenCalledWith(1);
+    it('should call usersService.fetchUser when identifier looks like an iban', async () => {
+      mockUsersService.fetchUser.mockResolvedValueOnce({
+        iban: 'ES9820385778983000760236',
+      });
+      await controller.fetchUser('ES9820385778983000760236');
+      expect(mockUsersService.fetchUser).toHaveBeenCalledWith(
+        'ES9820385778983000760236',
+      );
+      expect(mockUsersService.findByEmail).not.toHaveBeenCalled();
     });
 
     it('should return the result from usersService.fetchUser', async () => {
-      mockUsersService.fetchUser.mockResolvedValueOnce({ id: 1, name: 'Test' });
-      const result = await controller.fetchUser(1);
-      expect(result).toEqual({ id: 1, name: 'Test' });
+      mockUsersService.fetchUser.mockResolvedValueOnce({
+        iban: 'ES9820385778983000760236',
+        name: 'Test',
+      });
+      const result = await controller.fetchUser('ES9820385778983000760236');
+      expect(result).toEqual({
+        iban: 'ES9820385778983000760236',
+        name: 'Test',
+      });
     });
 
-    it('should propagate errors from usersService.fetchUser', async () => {
+    it('should call usersService.findByEmail when identifier contains @', async () => {
+      mockUsersService.findByEmail.mockResolvedValueOnce({
+        email: 'john@example.com',
+        iban: 'ES9820385778983000760236',
+      });
+      await controller.fetchUser('john@example.com');
+      expect(mockUsersService.findByEmail).toHaveBeenCalledWith(
+        'john@example.com',
+      );
+      expect(mockUsersService.fetchUser).not.toHaveBeenCalled();
+    });
+
+    it('should propagate errors from usersService.fetchUser or findByEmail', async () => {
       mockUsersService.fetchUser.mockRejectedValueOnce(new Error('Not found'));
-      await expect(controller.fetchUser(1)).rejects.toThrow('Not found');
+      await expect(
+        controller.fetchUser('ES9820385778983000760236'),
+      ).rejects.toThrow('Not found');
+      mockUsersService.fetchUser.mockReset();
+      mockUsersService.findByEmail.mockRejectedValueOnce(
+        new Error('Not found'),
+      );
+      await expect(controller.fetchUser('john@example.com')).rejects.toThrow(
+        'Not found',
+      );
     });
   });
 
   describe('updateUser', () => {
     const dto = {
+      iban: 'ES9820385778983000760236',
       email: 'test@example.com',
       name: 'Test',
       password: 'pass',
       phoneNumber: '+34611222333',
     };
 
-    it('should call usersService.updateUser with id and dto', async () => {
-      mockUsersService.updateUser.mockResolvedValueOnce({ id: 1, ...dto });
-      await controller.updateUser(1, dto);
-      expect(mockUsersService.updateUser).toHaveBeenCalledWith(1, dto);
+    it('should call usersService.updateUser with iban and dto', async () => {
+      mockUsersService.updateUser.mockResolvedValueOnce({
+        iban: dto.iban,
+        ...dto,
+      });
+      await controller.updateUser(dto.iban, dto);
+      expect(mockUsersService.updateUser).toHaveBeenCalledWith(dto.iban, dto);
     });
 
     it('should return the result from usersService.updateUser', async () => {
-      mockUsersService.updateUser.mockResolvedValueOnce({ id: 1, ...dto });
-      const result = await controller.updateUser(1, dto);
-      expect(result).toEqual({ id: 1, ...dto });
+      mockUsersService.updateUser.mockResolvedValueOnce({
+        iban: dto.iban,
+        ...dto,
+      });
+      const result = await controller.updateUser(dto.iban, dto);
+      expect(result).toEqual({ iban: dto.iban, ...dto });
     });
 
     it('should propagate errors from usersService.updateUser', async () => {
       mockUsersService.updateUser.mockRejectedValueOnce(new Error('Error'));
-      await expect(controller.updateUser(1, dto)).rejects.toThrow('Error');
+      await expect(controller.updateUser(dto.iban, dto)).rejects.toThrow(
+        'Error',
+      );
     });
   });
 
   describe('patchUser', () => {
     const patchDto: UserPatchDto = { field: 'name', value: 'New Name' };
 
-    it('should call usersService.patchUser with id and patch dto', async () => {
+    it('should call usersService.patchUser with iban and patch dto', async () => {
       mockUsersService.patchUser.mockResolvedValueOnce({
-        id: 1,
+        iban: 'ES9820385778983000760236',
         name: 'New Name',
       });
-      await controller.patchUser(1, patchDto);
-      expect(mockUsersService.patchUser).toHaveBeenCalledWith(1, patchDto);
+      await controller.patchUser('ES9820385778983000760236', patchDto);
+      expect(mockUsersService.patchUser).toHaveBeenCalledWith(
+        'ES9820385778983000760236',
+        patchDto,
+      );
     });
 
     it('should return the result from usersService.patchUser', async () => {
       mockUsersService.patchUser.mockResolvedValueOnce({
-        id: 1,
+        iban: 'ES9820385778983000760236',
         name: 'New Name',
       });
-      const result = await controller.patchUser(1, patchDto);
-      expect(result).toEqual({ id: 1, name: 'New Name' });
+      const result = await controller.patchUser(
+        'ES9820385778983000760236',
+        patchDto,
+      );
+      expect(result).toEqual({
+        iban: 'ES9820385778983000760236',
+        name: 'New Name',
+      });
     });
 
     it('should propagate errors from usersService.patchUser', async () => {
       mockUsersService.patchUser.mockRejectedValueOnce(new Error('Error'));
-      await expect(controller.patchUser(1, patchDto)).rejects.toThrow('Error');
+      await expect(
+        controller.patchUser('ES9820385778983000760236', patchDto),
+      ).rejects.toThrow('Error');
     });
   });
 
   describe('deleteUser', () => {
-    it('should call usersService.deleteUser with id', async () => {
-      await controller.deleteUser(1);
-      expect(mockUsersService.deleteUser).toHaveBeenCalledWith(1);
+    it('should call usersService.deleteUser with iban', async () => {
+      await controller.deleteUser('ES9820385778983000760236');
+      expect(mockUsersService.deleteUser).toHaveBeenCalledWith(
+        'ES9820385778983000760236',
+      );
     });
 
     it('should resolve when usersService.deleteUser succeeds', async () => {
-      await expect(controller.deleteUser(1)).resolves.toBeUndefined();
+      await expect(
+        controller.deleteUser('ES9820385778983000760236'),
+      ).resolves.toBeUndefined();
     });
 
     it('should propagate errors from usersService.deleteUser', async () => {
       mockUsersService.deleteUser.mockRejectedValueOnce(new Error('Error'));
-      await expect(controller.deleteUser(1)).rejects.toThrow('Error');
+      await expect(
+        controller.deleteUser('ES9820385778983000760236'),
+      ).rejects.toThrow('Error');
     });
   });
 
@@ -179,9 +244,11 @@ describe('UsersController', () => {
     });
 
     it('should return the result from usersService.getUsers', async () => {
-      mockUsersService.getUsers.mockResolvedValueOnce([{ id: 1 }]);
+      mockUsersService.getUsers.mockResolvedValueOnce([
+        { iban: 'ES9820385778983000760236' },
+      ]);
       const result = await controller.findAll();
-      expect(result).toEqual([{ id: 1 }]);
+      expect(result).toEqual([{ iban: 'ES9820385778983000760236' }]);
     });
 
     it('should propagate errors from usersService.getUsers', async () => {
