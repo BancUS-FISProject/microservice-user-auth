@@ -36,7 +36,9 @@ async function bootstrap() {
   // 🔹 Configuración Swagger
   const config = new DocumentBuilder()
     .setTitle('Users & Auth API')
-    .setDescription('API para el microservicio de usuarios y autenticación')
+    .setDescription(
+      'API para el microservicio de usuarios y autenticación. El IBAN de los usuarios se genera automáticamente en el servidor.',
+    )
     .setVersion('1.0')
     .addBearerAuth() // Para JWT más adelante
     .build();

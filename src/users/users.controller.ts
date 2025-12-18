@@ -30,12 +30,14 @@ import { UserResponseDto } from './dto/user-response.dto';
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
-  @ApiOperation({ summary: 'Create a new user' })
+  @ApiOperation({
+    summary: 'Create a new user',
+    description: 'IBAN se asigna automáticamente en el servidor.',
+  })
   @ApiBody({
     type: CreateUserDto,
     schema: {
       example: {
-        iban: 'ES9820385778983000760236',
         email: 'john.doe@example.com',
         name: 'John Doe',
         password: 's3cretPass',
@@ -83,7 +85,6 @@ export class UsersController {
     type: CreateUserDto,
     schema: {
       example: {
-        iban: 'ES9820385778983000760236',
         email: 'aledb@bancus.com',
         name: 'Alejandro Díaz Brenes',
         password: '123456',

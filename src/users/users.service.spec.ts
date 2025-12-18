@@ -68,7 +68,6 @@ describe('UsersService', () => {
 
   describe('signInUser', () => {
     const dto = {
-      iban: 'ES9820385778983000760236',
       email: 'test@example.com',
       name: 'Test User',
       password: 'password',
@@ -78,8 +77,12 @@ describe('UsersService', () => {
     it('should hash password and save user', async () => {
       const hashed = 'hashedPassword';
       hashMock.mockResolvedValueOnce(hashed);
+      const generatedIban = 'ES9820385778983000760236';
+      jest
+        .spyOn<any, any>(service as any, 'generateUniqueIban')
+        .mockResolvedValueOnce(generatedIban);
       const savedDoc = {
-        iban: dto.iban,
+        iban: generatedIban,
         ...dto,
         passwordHash: hashed,
         plan: 'basic',
@@ -90,7 +93,7 @@ describe('UsersService', () => {
 
       expect(bcrypt.hash).toHaveBeenCalledWith(dto.password, 10);
       expect(mockUserModel).toHaveBeenCalledWith({
-        iban: dto.iban,
+        iban: generatedIban,
         email: dto.email,
         name: dto.name,
         passwordHash: hashed,
@@ -103,6 +106,9 @@ describe('UsersService', () => {
 
     it('should throw BadRequestException on duplicate key errors', async () => {
       hashMock.mockResolvedValueOnce('hashed');
+      jest
+        .spyOn<any, any>(service as any, 'generateUniqueIban')
+        .mockResolvedValueOnce('ES9820385778983000760236');
       saveMock.mockRejectedValueOnce({
         code: 11000,
         keyValue: { email: dto.email },
@@ -115,6 +121,9 @@ describe('UsersService', () => {
 
     it('should propagate unexpected errors from save', async () => {
       hashMock.mockResolvedValueOnce('hashed');
+      jest
+        .spyOn<any, any>(service as any, 'generateUniqueIban')
+        .mockResolvedValueOnce('ES9820385778983000760236');
       saveMock.mockRejectedValueOnce(new Error('db down'));
 
       await expect(service.signInUser(dto)).rejects.toThrow('db down');

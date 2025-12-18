@@ -3,7 +3,7 @@ import { ApiProperty } from '@nestjs/swagger';
 export class UserResponseDto {
   @ApiProperty({
     example: 'ES9820385778983000760236',
-    description: 'User IBAN',
+    description: 'IBAN asignado automáticamente al usuario',
   })
   iban: string;
 
