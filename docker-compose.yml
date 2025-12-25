@@ -27,6 +27,9 @@ services:
       MONGO_PORT: ${MONGO_PORT:-27017}
       MONGO_DB: ${MONGO_DB:-userauth_db}
       JWT_SECRET: ${JWT_SECRET:-changeme}
+      CAPTCHA_PROVIDER: ${CAPTCHA_PROVIDER:-recaptcha}
+      CAPTCHA_SECRET: ${CAPTCHA_SECRET}
+      CAPTCHA_TIMEOUT_MS: ${CAPTCHA_TIMEOUT_MS:-3000}
     depends_on:
       - mongo
 
