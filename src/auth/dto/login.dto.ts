@@ -19,4 +19,12 @@ export class LoginDto {
   @IsNotEmpty({ message: 'La contraseña es obligatoria' })
   @MinLength(6, { message: 'La contraseña debe tener al menos 6 caracteres' })
   password: string;
+
+  @ApiProperty({
+    example: '03AFcWeA6R2...',
+    description: 'Token devuelto por el proveedor de captcha (hCaptcha/reCAPTCHA).',
+  })
+  @IsString()
+  @IsNotEmpty({ message: 'El token de captcha es obligatorio' })
+  captchaToken: string;
 }
