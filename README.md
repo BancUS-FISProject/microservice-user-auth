@@ -224,6 +224,26 @@ curl -X POST http://localhost:3000/v1/auth/login \
 
 ---
 
+### 10. GET `/v1/auth/validate` — Validar token JWT
+- Headers: `Authorization: Bearer <token>`.
+- Respuesta `200`:
+```json
+{
+  "status": "ok",
+  "email": "john.doe@example.com",
+  "iban": "ES9820385778983000760236",
+  "plan": "basic"
+}
+```
+- Errores: `401` token ausente o mal formado, `403` token válido pero usuario inexistente.
+- Ejemplo cURL:
+```bash
+curl -X GET http://localhost:3000/v1/auth/validate \
+  -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR..."
+```
+
+---
+
 ## Códigos de Respuesta HTTP
 
 | Código | Significado | Descripción |

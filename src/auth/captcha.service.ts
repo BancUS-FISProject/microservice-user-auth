@@ -26,7 +26,7 @@ export class CaptchaService {
   async verify(token: string, remoteIp?: string): Promise<boolean> {
     if (!this.secret) {
       this.logger.warn('Captcha secret not configured, skipping verification.');
-      return true; // evita romper si no está configurado; cambiar a false si quieres forzar
+      return true; 
     }
 
     const url =
@@ -53,7 +53,7 @@ export class CaptchaService {
         this.logger.warn('Captcha verification failed: success=false');
         return false;
       }
-      // Para reCAPTCHA v3 podrías exigir score mínimo; aquí solo devolvemos success.
+
       return true;
     } catch (error) {
       this.logger.error('Captcha verification error', error);
