@@ -1,4 +1,12 @@
-import { Controller, Post, Body, UnauthorizedException, BadRequestException } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  UnauthorizedException,
+  BadRequestException,
+  Get,
+  Headers,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import {
   ApiOperation,
@@ -6,10 +14,13 @@ import {
   ApiOkResponse,
   ApiUnauthorizedResponse,
   ApiBadRequestResponse,
+  ApiBearerAuth,
+  ApiForbiddenResponse,
 } from '@nestjs/swagger';
 import { LoginDto } from './dto/login.dto';
 import { LoginResponseDto } from './dto/login-response.dto';
 import { CaptchaService } from './captcha.service';
+import { ValidateTokenResponseDto } from './dto/validate-token-response.dto';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -43,5 +54,43 @@ export class AuthController {
     }
 
     return this.authService.login(user);
+  }
+
+  @ApiOperation({ summary: 'Validar un token JWT' })
+  @ApiBearerAuth()
+  @ApiOkResponse({
+    description: 'Token válido.',
+    type: ValidateTokenResponseDto,
+  })
+  @ApiUnauthorizedResponse({
+    description: 'Token ausente, mal formado o inválido.',
+  })
+  @ApiForbiddenResponse({
+    description: 'Token válido pero usuario inexistente.',
+  })
+  @Get('validate')
+  async validate(@Headers('authorization') authHeader?: string) {
+    const token = this.extractBearer(authHeader);
+    if (!token) {
+      throw new UnauthorizedException('Falta header Authorization Bearer');
+    }
+    const { user } = await this.authService.validateToken(token);
+    return {
+      status: 'ok' as const,
+      email: user.email,
+      iban: user.iban,
+      plan: user.plan ?? 'basic',
+    };
+  }
+
+  private extractBearer(authHeader?: string): string | null {
+    if (!authHeader) {
+      return null;
+    }
+    const [scheme, token] = authHeader.split(' ');
+    if (!scheme || !token || scheme.toLowerCase() !== 'bearer') {
+      return null;
+    }
+    return token;
   }
 }

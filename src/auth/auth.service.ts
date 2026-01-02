@@ -1,4 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { UsersService } from 'src/users/users.service';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
@@ -35,5 +40,34 @@ export class AuthService {
     return {
       access_token: this.jwtService.sign(payload),
     };
+  }
+
+  async validateToken(token: string) {
+    const payload = await this.decodeToken(token);
+    const email = payload?.email;
+    if (!email) {
+      throw new ForbiddenException('Token sin email');
+    }
+
+    try {
+      const user = await this.usersService.findByEmail(email);
+      const { passwordHash, ...safeUser } = user.toObject
+        ? user.toObject()
+        : user;
+      return { payload, user: safeUser };
+    } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw new ForbiddenException('Usuario no encontrado');
+      }
+      throw error;
+    }
+  }
+
+  private async decodeToken(token: string) {
+    try {
+      return await this.jwtService.verifyAsync(token);
+    } catch (error) {
+      throw new UnauthorizedException('Token inválido o expirado');
+    }
   }
 }
