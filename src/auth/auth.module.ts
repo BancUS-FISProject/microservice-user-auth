@@ -6,11 +6,13 @@ import { UsersModule } from 'src/users/users.module';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { CaptchaService } from './captcha.service';
+import { TokenBlacklistModule } from './token-blacklist/token-blacklist.module';
 
 @Module({
   imports: [
     HttpModule,
     UsersModule,
+    TokenBlacklistModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
