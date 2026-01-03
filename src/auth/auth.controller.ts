@@ -6,6 +6,7 @@ import {
   BadRequestException,
   Get,
   Headers,
+  HttpCode,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import {
@@ -81,6 +82,26 @@ export class AuthController {
       iban: user.iban,
       plan: user.plan ?? 'basic',
     };
+  }
+
+  @ApiOperation({ summary: 'Logout y revocar el token JWT actual' })
+  @ApiBearerAuth()
+  @ApiOkResponse({ description: 'Token revocado' })
+  @ApiUnauthorizedResponse({ description: 'Token ausente o inválido' })
+  @Post('logout')
+  @HttpCode(204)
+  async logout(@Headers('authorization') authHeader?: string) {
+    const token = this.extractBearer(authHeader);
+    if (!token) {
+      throw new UnauthorizedException('Falta header Authorization Bearer');
+    }
+    const payload = await this.authService.decodeToken(token);
+    const jti = payload?.jti;
+    const exp = payload?.exp;
+    if (!jti || !exp) {
+      throw new UnauthorizedException('Token sin jti o exp');
+    }
+    await this.authService.revokeToken(jti, exp);
   }
 
   private extractBearer(authHeader?: string): string | null {
