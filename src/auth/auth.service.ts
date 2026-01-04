@@ -9,6 +9,7 @@ import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { randomUUID } from 'crypto';
 import { TokenBlacklistService } from './token-blacklist/token-blacklist.service';
+import { NotificationsGatewayService } from './notifications-gateway.service';
 
 @Injectable()
 export class AuthService {
@@ -16,6 +17,7 @@ export class AuthService {
     private usersService: UsersService,
     private jwtService: JwtService,
     private readonly tokenBlacklist: TokenBlacklistService,
+    private readonly notificationsGateway: NotificationsGatewayService,
   ) {}
 
   async validateUser(email: string, pass: string): Promise<any> {
@@ -33,15 +35,27 @@ export class AuthService {
     }
   }
 
-  async login(user: any) {
+  async login(user: any, metadata: Record<string, unknown> = {}) {
     const jti = randomUUID();
+    const plan = user.plan ?? 'basic';
     const payload = {
       iban: user.iban,
       email: user.email,
-      plan: user.plan ?? 'basic',
+      plan,
       sub: user.iban || user._id,
       jti,
     };
+    const userId = user.iban ?? user._id?.toString?.() ?? user._id;
+    if (userId) {
+      await this.notificationsGateway.sendLoginEvent(
+        userId,
+        plan,
+        {
+          ...metadata,
+          email: user.email,
+        },
+      );
+    }
     return {
       access_token: this.jwtService.sign(payload),
     };

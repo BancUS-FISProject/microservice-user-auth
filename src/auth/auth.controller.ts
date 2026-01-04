@@ -7,6 +7,7 @@ import {
   Get,
   Headers,
   HttpCode,
+  Req,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import {
@@ -22,6 +23,7 @@ import { LoginDto } from './dto/login.dto';
 import { LoginResponseDto } from './dto/login-response.dto';
 import { CaptchaService } from './captcha.service';
 import { ValidateTokenResponseDto } from './dto/validate-token-response.dto';
+import type { Request } from 'express';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -39,7 +41,7 @@ export class AuthController {
   @ApiUnauthorizedResponse({ description: 'Credenciales inválidas.' })
   @ApiBadRequestResponse({ description: 'Captcha inválido o no verificado.' })
   @Post('login')
-  async login(@Body() loginDto: LoginDto) {
+  async login(@Body() loginDto: LoginDto, @Req() req: Request) {
     const captchaOk = await this.captchaService.verify(loginDto.captchaToken);
     if (!captchaOk) {
       throw new BadRequestException('Captcha inválido o no verificado');
@@ -54,7 +56,13 @@ export class AuthController {
       throw new UnauthorizedException('Credenciales inválidas');
     }
 
-    return this.authService.login(user);
+    const metadata = {
+      timestamp: new Date().toISOString(),
+      ip: this.getClientIp(req),
+      device: req.headers['user-agent'] || 'desconocido',
+    };
+
+    return this.authService.login(user, metadata);
   }
 
   @ApiOperation({ summary: 'Validar un token JWT' })
@@ -113,5 +121,16 @@ export class AuthController {
       return null;
     }
     return token;
+  }
+
+  private getClientIp(req: Request): string {
+    const forwarded = req.headers['x-forwarded-for'];
+    if (typeof forwarded === 'string' && forwarded.length > 0) {
+      return forwarded.split(',')[0].trim();
+    }
+    if (Array.isArray(forwarded) && forwarded.length > 0) {
+      return forwarded[0];
+    }
+    return req.ip || '';
   }
 }
