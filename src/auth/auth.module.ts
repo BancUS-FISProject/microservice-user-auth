@@ -7,6 +7,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { CaptchaService } from './captcha.service';
 import { TokenBlacklistModule } from './token-blacklist/token-blacklist.module';
+import { NotificationsGatewayService } from './notifications-gateway.service';
 
 @Module({
   imports: [
@@ -23,6 +24,6 @@ import { TokenBlacklistModule } from './token-blacklist/token-blacklist.module';
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, CaptchaService],
+  providers: [AuthService, CaptchaService, NotificationsGatewayService],
 })
 export class AuthModule {}
