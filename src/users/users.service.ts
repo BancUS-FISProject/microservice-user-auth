@@ -10,7 +10,6 @@ import { CreateUserDto } from './dto/create-user.dto';
 import * as bcrypt from 'bcrypt';
 import { UserPatchDto } from './dto/user-patch.dto';
 import { DeleteResult, MongoServerError } from 'mongodb';
-import { randomInt } from 'crypto';
 
 @Injectable()
 export class UsersService {
@@ -19,12 +18,15 @@ export class UsersService {
   ) {}
 
   async signInUser(data: CreateUserDto): Promise<UserDocument> {
+    if (!data.iban) {
+      throw new BadRequestException('IBAN is required to create a user');
+    }
+
     const saltRounds = 10;
     const passwordHash = await bcrypt.hash(data.password, saltRounds);
-    const iban = await this.generateUniqueIban();
 
     const userToSave: Omit<User, '_id'> = {
-      iban,
+      iban: data.iban,
       email: data.email,
       name: data.name,
       passwordHash: passwordHash,
@@ -158,24 +160,5 @@ export class UsersService {
       return Object.keys(keyValue)[0] ?? 'field';
     }
     return null;
-  }
-
-  private async generateUniqueIban(maxAttempts = 5): Promise<string> {
-    for (let attempt = 0; attempt < maxAttempts; attempt += 1) {
-      const candidate = this.buildRandomSpanishIban();
-      const exists = await this.userModel
-        .findOne({ iban: candidate })
-        .lean()
-        .exec();
-      if (!exists) {
-        return candidate;
-      }
-    }
-    throw new BadRequestException('Unable to generate a unique IBAN');
-  }
-
-  private buildRandomSpanishIban(): string {
-    const digits = Array.from({ length: 22 }, () => randomInt(0, 10)).join('');
-    return `ES${digits}`;
   }
 }
