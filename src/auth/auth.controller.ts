@@ -88,7 +88,7 @@ export class AuthController {
       status: 'ok' as const,
       email: user.email,
       iban: user.iban,
-      plan: user.plan ?? 'basic',
+      plan: user.plan ?? 'basico',
     };
   }
 

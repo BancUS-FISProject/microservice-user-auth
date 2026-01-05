@@ -3,7 +3,7 @@ import { ApiProperty } from '@nestjs/swagger';
 export class UserResponseDto {
   @ApiProperty({
     example: 'ES9820385778983000760236',
-    description: 'IBAN asignado automáticamente al usuario',
+    description: 'IBAN proporcionado por el microservicio de cuentas',
   })
   iban: string;
 
@@ -18,8 +18,8 @@ export class UserResponseDto {
 
   @ApiProperty({
     example: 'premium',
-    enum: ['basic', 'premium', 'business'],
+    enum: ['basico', 'premium', 'pro'],
     description: 'Pricing plan assigned to the user',
   })
-  plan: 'basic' | 'premium' | 'business';
+  plan: 'basico' | 'premium' | 'pro';
 }

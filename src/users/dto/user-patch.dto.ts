@@ -32,6 +32,6 @@ export class UserPatchDto {
   @ValidateIf((o: UserPatchDto) => o.field === 'name')
   @MinLength(3)
   @ValidateIf((o: UserPatchDto) => o.field === 'plan')
-  @IsIn(['basic', 'premium', 'business'])
+  @IsIn(['basico', 'premium', 'pro'])
   value: string;
 }

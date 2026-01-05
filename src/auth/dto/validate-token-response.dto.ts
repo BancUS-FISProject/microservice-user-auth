@@ -11,8 +11,8 @@ export class ValidateTokenResponseDto {
   iban: string;
 
   @ApiProperty({
-    example: 'basic',
-    enum: ['basic', 'premium', 'business'],
+    example: 'basico',
+    enum: ['basico', 'premium', 'pro'],
   })
-  plan: 'basic' | 'premium' | 'business';
+  plan: 'basico' | 'premium' | 'pro';
 }
