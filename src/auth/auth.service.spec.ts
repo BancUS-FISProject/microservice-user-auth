@@ -82,7 +82,7 @@ describe('AuthService', () => {
 
       expect(notificationsGatewayMock.sendLoginEvent).toHaveBeenCalledWith(
         '65fded526f31881d4e3a46b2',
-        'basic',
+        'basico',
         expect.objectContaining({
           email: 'user@example.com',
         }),

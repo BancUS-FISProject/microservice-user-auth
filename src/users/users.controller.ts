@@ -32,7 +32,7 @@ export class UsersController {
 
   @ApiOperation({
     summary: 'Create a new user',
-    description: 'IBAN se asigna automáticamente en el servidor.',
+    description: 'Crea un usuario con el IBAN proporcionado por cuentas.',
   })
   @ApiBody({
     type: CreateUserDto,

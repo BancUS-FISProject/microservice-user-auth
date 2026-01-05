@@ -37,13 +37,13 @@ export class CreateUserDto {
   phoneNumber: string;
 
   @ApiProperty({
-    example: 'basic',
-    enum: ['basic', 'premium', 'business'],
-    default: 'basic',
+    example: 'basico',
+    enum: ['basico', 'premium', 'pro'],
+    default: 'basico',
     required: false,
   })
   @IsOptional()
   @IsString()
-  @IsIn(['basic', 'premium', 'business'])
-  plan?: 'basic' | 'premium' | 'business';
+  @IsIn(['basico', 'premium', 'pro'])
+  plan?: 'basico' | 'premium' | 'pro';
 }

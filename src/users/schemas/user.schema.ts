@@ -22,7 +22,7 @@ export class User {
 
   @Prop({
     required: true,
-    enum: ['basico', 'estudiante', 'pro'],
+    enum: ['basico', 'premium', 'pro'],
     default: 'basico',
   })
   plan: 'basico' | 'premium' | 'pro';
