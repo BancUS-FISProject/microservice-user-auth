@@ -83,7 +83,7 @@ describe('UsersService', () => {
         iban: dto.iban,
         ...dto,
         passwordHash: hashed,
-        plan: 'basic',
+        plan: 'basico',
       };
       saveMock.mockResolvedValueOnce(savedDoc);
 
@@ -96,7 +96,7 @@ describe('UsersService', () => {
         name: dto.name,
         passwordHash: hashed,
         phoneNumber: dto.phoneNumber,
-        plan: 'basic',
+        plan: 'basico',
       });
       expect(saveMock).toHaveBeenCalledTimes(1);
       expect(result).toEqual(savedDoc);
@@ -188,7 +188,7 @@ describe('UsersService', () => {
         iban: dto.iban,
         ...dto,
         passwordHash: 'hashed',
-        plan: 'basic',
+        plan: 'basico',
       };
       findOneAndUpdateExecMock.mockResolvedValueOnce(updated);
 
@@ -202,7 +202,7 @@ describe('UsersService', () => {
           email: dto.email,
           passwordHash: 'hashed',
           phoneNumber: dto.phoneNumber,
-          plan: 'basic',
+          plan: 'basico',
         },
         { new: true, runValidators: true },
       );

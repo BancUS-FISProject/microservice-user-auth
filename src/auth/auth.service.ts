@@ -37,7 +37,7 @@ export class AuthService {
 
   async login(user: any, metadata: Record<string, unknown> = {}) {
     const jti = randomUUID();
-    const plan = user.plan ?? 'basic';
+    const plan = user.plan ?? 'basico';
     const payload = {
       iban: user.iban,
       email: user.email,

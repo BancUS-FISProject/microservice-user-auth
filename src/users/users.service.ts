@@ -31,7 +31,7 @@ export class UsersService {
       name: data.name,
       passwordHash: passwordHash,
       phoneNumber: data.phoneNumber,
-      plan: data.plan ?? 'basic',
+      plan: data.plan ?? 'basico',
     };
 
     const newUser = new this.userModel(userToSave);
@@ -76,7 +76,7 @@ export class UsersService {
       email: data.email,
       passwordHash,
       phoneNumber: data.phoneNumber,
-      plan: data.plan ?? 'basic',
+      plan: data.plan ?? 'basico',
     };
 
     try {
