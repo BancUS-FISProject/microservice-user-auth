@@ -22,10 +22,10 @@ export class User {
 
   @Prop({
     required: true,
-    enum: ['basic', 'premium', 'business'],
-    default: 'basic',
+    enum: ['basico', 'estudiante', 'pro'],
+    default: 'basico',
   })
-  plan: 'basic' | 'premium' | 'business';
+  plan: 'basico' | 'premium' | 'pro';
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
